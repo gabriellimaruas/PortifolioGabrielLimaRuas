@@ -1,13 +1,9 @@
 from selenium import webdriver as bot
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 import pyautogui
 import pyautogui as tempo
-import pyautogui as posicaoMouse
 
 #imports excel
-import openpyxl
 from openpyxl import Workbook
 #import para a fonte em negrito
 from openpyxl.styles import Font
@@ -106,10 +102,10 @@ for estados in lista:
     #IDH
     idh = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[41]/td[3]/valor-indicador/div/span[1]').text
     print('IDH:', idh)
+
     #refresh com a posicao do mouse
     pyautogui.press('f5')
-    # posicaoMouse.moveTo(x=85, y=49)
-    # posicaoMouse.click(x=85, y=49)
+
     tempo.sleep(2)
     print('<-------------------------------------------->')
 
