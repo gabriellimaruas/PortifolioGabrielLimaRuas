@@ -2,10 +2,12 @@ from selenium import webdriver as bot
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import pyautogui
 import pyautogui as tempo
 import pyautogui as posicaoMouse
 
 #imports excel
+import openpyxl
 from openpyxl import Workbook
 #import para a fonte em negrito
 from openpyxl.styles import Font
@@ -30,7 +32,7 @@ colunaA = 'A'
 nova_largura = 20
 planilha_dados.column_dimensions[colunaA].width = nova_largura
 colunaB = 'B'
-nova_largura = 20
+nova_largura = 50
 planilha_dados.column_dimensions[colunaB].width = nova_largura
 colunaC = 'C'
 nova_largura = 20
@@ -75,18 +77,17 @@ lista = ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Espírito 
 
 
 #maximizar a tela pela posicao do mouse
-posicaoMouse.moveTo(x=876, y=23)
-posicaoMouse.click(x=876, y=23)
+pyautogui.hotkey('win', 'up')
 
 for estados in lista:
     #Barra de pesquisa
     navegador.find_element(By.XPATH, '/html/body/app/shell/header/busca/div/input').send_keys(estados)
-    tempo.sleep(1)
+    tempo.sleep(2)
     #clique no estado
     navegador.find_element(By.XPATH, '/html/body/app/shell/header/busca/div/div[2]/div/div[1]/a').click()
     #estado
     print('Estado:', estados)
-    tempo.sleep(1)
+    tempo.sleep(5)
     #gentilico
     gentilico = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[2]/div/p').text
     print('Gentilico:', gentilico)
@@ -106,8 +107,9 @@ for estados in lista:
     idh = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[41]/td[3]/valor-indicador/div/span[1]').text
     print('IDH:', idh)
     #refresh com a posicao do mouse
-    posicaoMouse.moveTo(x=85, y=49)
-    posicaoMouse.click(x=85, y=49)
+    pyautogui.press('f5')
+    # posicaoMouse.moveTo(x=85, y=49)
+    # posicaoMouse.click(x=85, y=49)
     tempo.sleep(2)
     print('<-------------------------------------------->')
 
