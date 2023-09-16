@@ -5,7 +5,7 @@ import openpyxl
 
 #Configurações do servidor SMTP e credenciais
 smtplib_server = 'smtp.seudominio.com'
-smtplib_port = 'Porta no formato int'
+smtplib_port = 1 #Substituir o 1 por uma porta no formato int
 smtplib_username = 'Seu email'
 smtplib_password = 'Sua senha'
 
