@@ -1,133 +1,150 @@
 from selenium import webdriver as bot
 from selenium.webdriver.common.by import By
-import pyautogui
-import pyautogui as tempo
-
-#imports excel
+from selenium.webdriver.common.keys import Keys
+import time
+# imports excel
 from openpyxl import Workbook
-#import para a fonte em negrito
-from openpyxl.styles import Font
+import os
+# import para a fonte em negrito
+from openpyxl.styles import Font, Alignment
 
-#Criar arquivo excel
+# Funcao para definir o estilo dos titulo para a planilha
+def configurar_titulos_estilos(planilha):
+    # Definir a coluna, largura e o titulo das celulas
+    largura_titulos = {
+        'A': (21, 'Estado'),
+        'B': (51, 'Gentílico'),
+        'C': (21, 'Capital'),
+        'D': (45, 'Governador'),
+        'E': (23, 'Pop. Estimada'),
+        'F': (20, 'IDH')
+    }
+
+    # Loop para adicionar os titulos na planilha
+    for coluna, (largura, titulo) in largura_titulos.items():
+        planilha.column_dimensions[coluna].width = largura
+        celula_largura_titulo = planilha[f'{coluna}1']
+        celula_largura_titulo.value = titulo
+
+    # Definir o estilo das celulas com titulo
+    estilo_titulo = Font(bold=True, size=14)
+    alignment_titulo = Alignment(horizontal='center', vertical='center')
+
+    # Listar as linhas e colunas que serao modificadas
+    celula_titulo = ['A1', 'B1', 'C1', 'D1', 'E1', 'F1']
+
+    # Loop para aplicar os estilos nas celulas
+    for estilos in celula_titulo:
+        celula_estilo_titulo = planilha[estilos]
+        celula_estilo_titulo.font = estilo_titulo
+        celula_estilo_titulo.alignment = alignment_titulo
+
+# funcao para coleta de dados e manipular estilo dos dados
+def tentativa_coleta_dados(navegador, estado):
+    tentativas = 3
+
+    for tentativa in range(1, tentativas + 1):
+        try:
+            # gentilico
+            gentilico = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[2]/div/p').text
+            # capital
+            capital = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[3]/div/p').text
+            # governador
+            governador = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[4]/div/p').text
+            # populacao estimada
+            populacao = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[2]/td[3]/valor-indicador/div/span[1]').text
+            # economia
+            economia = navegador.find_element(By.XPATH,'//*[@id="dados"]/panorama-resumo/div/table/tr[38]/th[2]').click()
+            time.sleep(1)
+            # IDH
+            idh = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[41]/td[3]/valor-indicador/div/span[1]').text
+            # Botao populacao
+            botao_populacao = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[1]/th[2]').click()
+            time.sleep(1)
+
+            # print dos dados
+            print('Estado: ', estado)
+            print('Gentilico: ', gentilico)
+            print('Capital: ', capital)
+            print('Governador: ', governador)
+            print('População Estimada:', populacao, 'pessoas')
+            print('IDH: ', idh)
+
+            print('<-------------------------------------------->')
+
+            # Definir colunas, dados e fonte das celulas dos dados
+            colunas_dados = ['A', 'B', 'C', 'D', 'E', 'F']
+            dados_coletados = [estado, gentilico, capital, governador, populacao, idh]
+            fonte_dados = Font(size=12)
+
+            # Interar os dados na planilha
+            linha = planilha_dados.max_row + 1
+
+            # loop para adicionar os dados a planilha
+            for coluna_exata, dado_exato in zip(colunas_dados, dados_coletados):
+                celula_exata = coluna_exata + str(linha)
+
+                # verificar se é a coluna populacao para adicionar o populacao_pessoas
+                if coluna_exata == 'E':
+                    planilha_dados[celula_exata] = f'{populacao} pessoas'
+                else:
+                    planilha_dados[celula_exata] = dado_exato
+                planilha_dados[celula_exata].font = fonte_dados
+
+            break
+
+        except Exception as e:
+            print(f'Tentativa {tentativa} de coleta de dados do estado {estado} falhou: {e}')
+
+        if tentativa < tentivas:
+            print(f'Tentativa {tentativa} de {tentativas}. Tentando novamente...')
+        else:
+            print(f'Atingido o número máximo de tentativas para {estado}. Desculpe.')
+
+
+# Criar, ativar e definir titulo da pag da planilha excel
 workbook = Workbook()
-
-#Criar planilha para armazenas os dados
 planilha_dados = workbook.active
 planilha_dados.title = 'DADOS'
 
-#Definir o titulo de cada coluna
-planilha_dados['A1'] = 'Estado'
-planilha_dados['B1'] = 'Gentílico'
-planilha_dados['C1'] = 'Capital'
-planilha_dados['D1'] = 'Governador'
-planilha_dados['E1'] = 'Pop. Estimada'
-planilha_dados['F1'] = 'IDH'
+# Chamar a função configurar_titulos_estilos para ser executada na planilha_dados
+configurar_titulos_estilos(planilha_dados)
 
-#Aumentar a largura das colunas
-colunaA = 'A'
-nova_largura = 20
-planilha_dados.column_dimensions[colunaA].width = nova_largura
-colunaB = 'B'
-nova_largura = 50
-planilha_dados.column_dimensions[colunaB].width = nova_largura
-colunaC = 'C'
-nova_largura = 20
-planilha_dados.column_dimensions[colunaC].width = nova_largura
-colunaD = 'D'
-nova_largura = 40
-planilha_dados.column_dimensions[colunaD].width = nova_largura
-colunaE = 'E'
-nova_largura = 20
-planilha_dados.column_dimensions[colunaE].width = nova_largura
-colunaF = 'F'
-nova_largura = 20
-planilha_dados.column_dimensions[colunaF].width = nova_largura
-
-#Colocar o titulo em negrito e aumentar o tamanho
-celulaA = planilha_dados['A1']
-celulaA.font = Font(bold=True)
-celulaA.font = Font(size=16)
-celulaB = planilha_dados['B1']
-celulaB.font = Font(bold=True)
-celulaB.font = Font(size=14)
-celulaC = planilha_dados['C1']
-celulaC.font = Font(bold=True)
-celulaC.font = Font(size=14)
-celulaD = planilha_dados['D1']
-celulaD.font = Font(bold=True)
-celulaD.font = Font(size=14)
-celulaE = planilha_dados['E1']
-celulaE.font = Font(bold=True)
-celulaE.font = Font(size=14)
-celulaF = planilha_dados['F1']
-celulaF.font = Font(bold=True)
-celulaF.font = Font(size=14)
-
+# Iniciar bot selenium e maximizar janela
+print('Abrindo navegador, um momento...')
 navegador = bot.Chrome()
 navegador.get('https://cidades.ibge.gov.br/')
+navegador.maximize_window()
 
-lista = ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Espírito Santo', 'Goiás', 'Maranhão',
+# Lista de estados a terem os dados coletados
+lista_estados = ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Espírito Santo', 'Goiás', 'Maranhão',
          'Mato Grosso', 'Mato Grosso Do Sul', 'Minas Gerais', 'Pará', 'Paraíba', 'Paraná', 'Pernambuco', 'Piauí',
          'Rio de Janeiro', 'Rio Grande Do Norte', 'Rio Grande Do Sul', 'Rondônia', 'Roraima', 'Santa Catarina',
          'São Paulo', 'Sergipe', 'Tocantins', 'Distrito Federal']
 
+# Loop para coleta de dados
+for estado in lista_estados:
 
-#maximizar a tela pela posicao do mouse
-pyautogui.hotkey('win', 'up')
+    time.sleep(2)
+    # Barra de pesquisa
+    barra_pesquisa = navegador.find_element(By.CSS_SELECTOR, 'body > app > shell > header > busca > div > input')
+    barra_pesquisa.send_keys(estado)
+    time.sleep(1)
 
-for estados in lista:
-    #Barra de pesquisa
-    navegador.find_element(By.XPATH, '/html/body/app/shell/header/busca/div/input').send_keys(estados)
-    tempo.sleep(2)
-    #clique no estado
-    navegador.find_element(By.XPATH, '/html/body/app/shell/header/busca/div/div[2]/div/div[1]/a').click()
-    #estado
-    print('Estado:', estados)
-    tempo.sleep(5)
-    #gentilico
-    gentilico = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[2]/div/p').text
-    print('Gentilico:', gentilico)
-    #capital
-    capital = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[3]/div/p').text
-    print('Capital:', capital)
-    #governador
-    governador = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/div[1]/div[4]/div/p').text
-    print('Governador:', governador)
-    #populacao estimada
-    populacao = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[2]/td[3]/valor-indicador/div/span[1]').text
-    print('População Estimada:', populacao)
-    #economia
-    economia = navegador.find_element(By.XPATH,'//*[@id="dados"]/panorama-resumo/div/table/tr[38]/th[2]').click()
-    tempo.sleep(2)
-    #IDH
-    idh = navegador.find_element(By.XPATH, '//*[@id="dados"]/panorama-resumo/div/table/tr[41]/td[3]/valor-indicador/div/span[1]').text
-    print('IDH:', idh)
+    # Clique no estado
+    clique_estado = navegador.find_element(By.CSS_SELECTOR, 'body > app > shell > header > busca > div > div.busca__auto-completar > div > div:nth-child(1) > a')
+    clique_estado.click()
+    time.sleep(2)
 
-    #refresh com a posicao do mouse
-    pyautogui.press('f5')
+    print(f'Coletando os dados do estado {estado}, um momento...')
 
-    tempo.sleep(2)
-    print('<-------------------------------------------->')
+    # Chamar a funcao tentativa_coleta_dados
+    tentativa_coleta_dados(navegador, estado)
 
-    # Adicionar dados
-    linha = planilha_dados.max_row + 1
-    colunaA = 'A' + str(linha)
-    colunaB = 'B' + str(linha)
-    colunaC = 'C' + str(linha)
-    colunaD = 'D' + str(linha)
-    colunaE = 'E' + str(linha)
-    colunaF = 'F' + str(linha)
-
-    # imprimirar os dados na planilha
-    planilha_dados[colunaA] = estados
-    planilha_dados[colunaB] = gentilico
-    planilha_dados[colunaC] = capital
-    planilha_dados[colunaD] = governador
-    planilha_dados[colunaE] = populacao
-    planilha_dados[colunaF] = idh
-
-    # salvando arquivo excel
+    # Salvar o arquivo
     workbook.save('Dados.xlsx')
 
-
-tempo.sleep(5)
+print('Finalizando robô...')
+time.sleep(1)
+navegador.quit()
+print('Robô Finalizado!')
