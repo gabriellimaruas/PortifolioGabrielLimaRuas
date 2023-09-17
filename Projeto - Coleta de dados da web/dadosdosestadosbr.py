@@ -5,7 +5,7 @@ import time
 # imports excel
 from openpyxl import Workbook
 import os
-# import para a fonte em negrito
+# import para a fonte e alinhamento
 from openpyxl.styles import Font, Alignment
 
 # Funcao para definir o estilo dos titulo para a planilha
@@ -90,7 +90,6 @@ def tentativa_coleta_dados(navegador, estado):
                 else:
                     planilha_dados[celula_exata] = dado_exato
                 planilha_dados[celula_exata].font = fonte_dados
-
             break
 
         except Exception as e:
@@ -100,7 +99,6 @@ def tentativa_coleta_dados(navegador, estado):
             print(f'Tentativa {tentativa} de {tentativas}. Tentando novamente...')
         else:
             print(f'Atingido o número máximo de tentativas para {estado}. Desculpe.')
-
 
 # Criar, ativar e definir titulo da pag da planilha excel
 workbook = Workbook()
@@ -124,13 +122,12 @@ lista_estados = ['Acre', 'Alagoas', 'Amapá', 'Amazonas', 'Bahia', 'Ceará', 'Es
 
 # Loop para coleta de dados
 for estado in lista_estados:
-
     time.sleep(2)
     # Barra de pesquisa
     barra_pesquisa = navegador.find_element(By.CSS_SELECTOR, 'body > app > shell > header > busca > div > input')
     barra_pesquisa.send_keys(estado)
     time.sleep(1)
-
+    
     # Clique no estado
     clique_estado = navegador.find_element(By.CSS_SELECTOR, 'body > app > shell > header > busca > div > div.busca__auto-completar > div > div:nth-child(1) > a')
     clique_estado.click()
